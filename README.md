@@ -1,10 +1,10 @@
-# コードアシスタント
+# Code Assistant
 
-## 概要
+## Overview
 
-GPT-4oを用いたコードアシスタントウェブアプリ
+A code assistant web application using GPT-4o.
 
-## 環境構築
+## Environment Setup
 
 > conda create -n code-assistant python=3.11  
 > pip install openai==1.35.10  
@@ -12,12 +12,11 @@ GPT-4oを用いたコードアシスタントウェブアプリ
 
 ## OpenAI API Key
 
-.streamlitフォルダ内にsecrets.tomlファイルを用意し、以下のコードを記述のこと。
+Create a secrets.toml file in the .streamlit folder and add the following code:
 
 > OPENAI_API_KEY = "xxxxxxxx"  
 
-## 実行方法
+## Execution
 
 > conda activate code-assistant  
 > streamlit run main.py  
-
