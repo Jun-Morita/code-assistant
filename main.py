@@ -2,13 +2,14 @@ import streamlit as st
 from openai import OpenAI
 
 client = OpenAI()
+model_name = "gpt-4o" 
 
 st.title("コードアシスタント")
 
 # プログラミング言語の選択
 language = st.selectbox(
     "プログラミング言語を選択してください",
-    ("python", "VBA", "c", "java")
+    ("python", "VBA", "SQL", "c", "java", "c++")
 )
 
 # 機能の選択
@@ -48,7 +49,7 @@ if execute:
     if function_choice == "コードのエラー修正" and user_code and error_message:
         prompt = f"あなたはユーザーの指示に基づいて{language}コードのエラーを修正する親切なアシスタントです。以下のコードのエラーを修正してください。コード：{user_code}。エラーメッセージ：{error_message}"
         completion = client.chat.completions.create(
-            model="gpt-4o",
+            model=model_name,
             messages=[
                 {"role": "system", "content": prompt},
             ],
@@ -60,7 +61,7 @@ if execute:
     elif function_choice == "コードの改良" and original_code and improvement_instructions:
         prompt = f"あなたはユーザーの指示に基づいて{language}コードを改良する親切なアシスタントです。以下のコードを指示に従って改良してください。元のコード：{original_code}。改良方針：{improvement_instructions}。また、改良点をリストアップしてください。"
         completion = client.chat.completions.create(
-            model="gpt-4o",
+            model=model_name,
             messages=[
                 {"role": "system", "content": prompt},
             ],
@@ -73,7 +74,7 @@ if execute:
     elif function_choice == "コード生成" and user_message:
         prompt = f"あなたはユーザーの指示に基づいて{language}コードを提供する親切なアシスタントです。"
         completion = client.chat.completions.create(
-            model="gpt-4o",
+            model=model_name,
             messages=[
                 {"role": "system", "content": prompt},
                 {"role": "user", "content": user_message},
@@ -86,7 +87,7 @@ if execute:
     elif function_choice == "コード解説" and user_message:
         prompt = f"あなたはユーザーの指示に基づいて{language}コードの詳細な解説を提供する親切なアシスタントです。"
         completion = client.chat.completions.create(
-            model="gpt-4o",
+            model=model_name,
             messages=[
                 {"role": "system", "content": prompt},
                 {"role": "user", "content": user_message},
@@ -111,7 +112,7 @@ if function_choice == "コードの改良" and st.session_state['improved_code']
     if execute_additional_improvements and additional_improvement_instructions:
         prompt_additional = f"あなたはユーザーの指示に基づいて{language}コードをさらに改良する親切なアシスタントです。以下の改良されたコードに追加の改良を行ってください。改良されたコード：{st.session_state['improved_code']}。追加の改良方針：{additional_improvement_instructions}。また、改良点をリストアップしてください。"
         completion_additional = client.chat.completions.create(
-            model="gpt-4o",
+            model=model_name,
             messages=[
                 {"role": "system", "content": prompt_additional},
             ],
