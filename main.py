@@ -17,6 +17,12 @@ function_choice = st.selectbox(
     ("コード生成", "コード解説", "コードの改良", "コードのエラー修正")
 )
 
+# セッションステートの初期化
+if 'improved_code' not in st.session_state:
+    st.session_state['improved_code'] = ""
+if 'additional_improvement_instructions' not in st.session_state:
+    st.session_state['additional_improvement_instructions'] = ""
+
 # 入力フィールドの表示
 user_code = ""
 error_message = ""
@@ -49,10 +55,10 @@ if execute:
         )
         response = completion.choices[0].message.content
         st.subheader(f"修正された{language.capitalize()}コード:")
-        st.code(response)
+        st.markdown(response)
 
     elif function_choice == "コードの改良" and original_code and improvement_instructions:
-        prompt = f"あなたはユーザーの指示に基づいて{language}コードを改良する親切なアシスタントです。以下のコードを指示に従って改良してください。元のコード：{original_code}。改良方針：{improvement_instructions}"
+        prompt = f"あなたはユーザーの指示に基づいて{language}コードを改良する親切なアシスタントです。以下のコードを指示に従って改良してください。元のコード：{original_code}。改良方針：{improvement_instructions}。また、改良点をリストアップしてください。"
         completion = client.chat.completions.create(
             model="gpt-4o",
             messages=[
@@ -60,8 +66,9 @@ if execute:
             ],
         )
         response = completion.choices[0].message.content
+        st.session_state['improved_code'] = response
         st.subheader(f"改良された{language.capitalize()}コード:")
-        st.code(response)
+        st.markdown(st.session_state['improved_code'])
 
     elif function_choice == "コード生成" and user_message:
         prompt = f"あなたはユーザーの指示に基づいて{language}コードを提供する親切なアシスタントです。"
@@ -74,7 +81,7 @@ if execute:
         )
         response = completion.choices[0].message.content
         st.subheader(f"生成された{language.capitalize()}コード:")
-        st.code(response)
+        st.markdown(response)
 
     elif function_choice == "コード解説" and user_message:
         prompt = f"あなたはユーザーの指示に基づいて{language}コードの詳細な解説を提供する親切なアシスタントです。"
@@ -87,4 +94,30 @@ if execute:
         )
         response = completion.choices[0].message.content
         st.subheader(f"{language.capitalize()}コードの解説:")
-        st.write(response)
+        st.markdown(response)
+
+# 追加の改良方針を入力するためのセクション
+if function_choice == "コードの改良" and st.session_state['improved_code']:
+    additional_improvement_instructions = st.text_area(
+        label="追加の改良方針を入力してください",
+        value=st.session_state['additional_improvement_instructions'],
+        key="additional_instructions"
+    )
+
+    # 追加改良の実行ボタン
+    execute_additional_improvements = st.button("追加の改良を実行")
+
+    # 追加改良の実行ボタンが押された場合の処理
+    if execute_additional_improvements and additional_improvement_instructions:
+        prompt_additional = f"あなたはユーザーの指示に基づいて{language}コードをさらに改良する親切なアシスタントです。以下の改良されたコードに追加の改良を行ってください。改良されたコード：{st.session_state['improved_code']}。追加の改良方針：{additional_improvement_instructions}。また、改良点をリストアップしてください。"
+        completion_additional = client.chat.completions.create(
+            model="gpt-4o",
+            messages=[
+                {"role": "system", "content": prompt_additional},
+            ],
+        )
+        response_additional = completion_additional.choices[0].message.content
+        st.session_state['improved_code'] = response_additional
+        st.session_state['additional_improvement_instructions'] = ""
+        st.subheader(f"さらに改良された{language.capitalize()}コード:")
+        st.markdown(st.session_state['improved_code'])
